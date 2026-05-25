@@ -1,0 +1,6 @@
+Alterar os caminhos dos carregamentos e salvamento do data nos notebooks
+Criamos as pastas:
+- data/output_API/models 
+- data/output_API/train_test
+- data/output/models
+- data/output/train_test
