@@ -1,14 +1,12 @@
 import sys
 import os
 
-sys.path.append(
-    os.path.abspath("..")
-)
+sys.path.append("/app")
 
 import pandas as pd
 import joblib
 
-from module.feature_extractor import extract_features
+from modules.feature_extractor import extract_features
 
 
 # =========================
