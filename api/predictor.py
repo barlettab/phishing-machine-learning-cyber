@@ -1,22 +1,18 @@
-import sys
 import os
-
-sys.path.append("/app")
-
-import pandas as pd
 import joblib
-
+import pandas as pd
 from modules.feature_extractor import extract_features
-
 
 # =========================
 # Carregando modelo
 # =========================
 
-rf_model = joblib.load(
-    "../data/output_API/models/rf_model_url.pkl"
-)
+MODEL_PATH = os.getenv("MODEL_PATH")
 
+if not MODEL_PATH:
+    raise ValueError("MODEL_PATH não definida no ambiente")
+
+rf_model = joblib.load(MODEL_PATH)
 
 # =========================
 # Features utilizadas

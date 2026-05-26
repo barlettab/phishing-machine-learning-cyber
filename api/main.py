@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from schemas import URLRequest
+from api.schemas import URLRequest
 
-from predictor import predict_url
+from api.predictor import predict_url
 
 
 app = FastAPI(
