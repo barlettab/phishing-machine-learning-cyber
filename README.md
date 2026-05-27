@@ -8,7 +8,6 @@
 ![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat-square&logo=pandas&logoColor=white)
 ![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat-square&logo=jupyter&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Concluído-4CAF50?style=flat-square)
 
 </div>
 
@@ -187,9 +186,9 @@ A API foi implementada em FastAPI que recebe a URL bruta, importa o script `feat
 - nível de risco (`Baixo Risco`, `Risco Moderado`, `Alto Risco`)
 
 A classificação de risco é baseada na probabilidade prevista de phishing:
-- `< 0.30` → Baixo Risco
-- `0.30 a < 0.60` → Risco Moderado
-- `>= 0.60` → Alto Risco
+- `< 0.30` → 🟢 Baixo Risco
+- `0.30 a < 0.60` →  🟡 Risco Moderado 
+- `>= 0.60` → 🔴 Alto Risco
 
 ## 9. Features de URL usadas pela API
 
@@ -228,7 +227,7 @@ uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 - Docs interativas: `http://localhost:8000/docs`
 - Healthcheck: `http://localhost:8000/`
 
-### Opção B — Docker
+### Opção B — Docker 
 
 ```bash
 docker build -t phishing-api .
@@ -238,7 +237,7 @@ docker run --rm -p 8000:8000 phishing-api
 O `Dockerfile` já configura `MODEL_PATH` para:
 `/app/data/output_API/models/rf_model_url.pkl`
 
-## 11. Containerização com Docker
+## 11. Containerização com Docker 
 
 Para isolar a API de predição, garantir a reprodutibilidade dos resultados e mitigar riscos de conflitos de dependências em produção (como divergências de versões do Scikit-Learn entre ambientes), a aplicação foi empacotada utilizando o **Docker**.
 
