@@ -25,11 +25,11 @@ Este projeto propõe o desenvolvimento de um pipeline inteligente de Machine Lea
 O propósito central deste trabalho é avaliar a viabilidade e o custo-benefício de implementar um sistema inteligente e ágil de segurança cibernética. De forma detalhada, os objetivos dividem-se em:
 
 * **Desenvolver um Pipeline End-to-End de Classificação:** Realizar o ciclo completo de Ciência de Dados, desde a análise exploratória (EDA) e pré-processamento rigoroso de um dataset com 10.000 amostras equilibradas, até o treinamento, tunagem e avaliação de algoritmos de aprendizado supervisionado (Regressão Logística, Decision Tree e Random Forest).
-* 
+  
 * **Mapear Padrões de Ofuscação de URLs:** Identificar estatisticamente quais atributos textuais (como contagem de pontos, comprimento do caminho, subdomínios, presença de endereços IP diretos e termos sensíveis) carregam maior poder discriminatório na separação de links legítimos e maliciosos.
-* 
+  
 * **Avaliar o Trade-off entre Robustez e Latência:** Conduzir um experimento comparativo para quantificar a perda de desempenho preditivo ao remover completamente os recursos ricos obtidos do HTML das páginas, avaliando se a análise exclusiva da string da URL sustenta métricas estatísticas robustas (como ROC-AUC e Recall).
-* 
+  
 * **Construir um Protótipo de Produção Otimizado:** Implementar um módulo funcional e modular de extração sintática de características (`feature_extractor.py`) integrado a uma API em **FastAPI** de baixíssima latência, simulando regras de negócio acionáveis e níveis de risco para tomada de decisão automatizada em tempo real.
 
 ## 3. Estrutura do projeto
