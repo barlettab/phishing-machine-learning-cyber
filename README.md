@@ -1,53 +1,219 @@
-# Detecção de Phishing com Machine Learning
+# 🛡️ Detecção de Phishing com Machine Learning
 
-Este projeto tem como objetivo desenvolver e avaliar modelos de Machine Learning para prever com precisão se uma URL é de phishing ou legítima, com base em um conjunto de características extraídas.
+Projeto de ciência de dados + deploy de API para **classificação de URLs como legítimas ou phishing**.
 
-## 1. Definição do Problema
+O repositório cobre o ciclo completo:
+- exploração e preparação de dados,
+- treino e comparação de modelos,
+- versão otimizada usando apenas features de URL,
+- disponibilização de inferência via **FastAPI** e **Docker**.
 
-Diante do cenário de crescente sofisticação dos ataques de phishing, este projeto aborda as seguintes questões centrais:
+---
 
-- É possível prever com precisão se uma página é phishing ou legítima com base nas características extraídas?
-- Quais são as principais características que diferenciam uma página phishing de uma legítima?
-- Como é o desempenho do modelo de classificação entre os algoritmos de machine learning Random Forest, Árvore de Decisão e Regressão Linear?
+## 📌 Objetivo
 
-## 2. Coleta e Compreensão dos Dados
+Construir um pipeline reprodutível para responder:
 
-O dataset utilizado, "Phishing_Legitimate_full.csv", contém 10.000 entradas e 50 colunas. Uma análise inicial revelou que não há valores ausentes e a distribuição da classe alvo (`CLASS_LABEL`) é balanceada (5000 legítimas e 5000 de phishing). A correlação entre as variáveis foi visualizada através de um heatmap.
+1. É possível classificar URLs maliciosas com alta acurácia?
+2. Quais variáveis são mais relevantes para distinguir phishing de legítimas?
+3. Qual algoritmo performa melhor entre Regressão Logística, Árvore de Decisão e Random Forest?
+4. Uma abordagem simplificada (somente URL) mantém bom desempenho e reduz custo computacional?
 
-## 3. Pré-processamento e Limpeza dos Dados
+---
 
-- A coluna 'id' foi removida por não ser relevante para a modelagem.
-- Outliers foram identificados através de box plots, mas optou-se por não removê-los, pois podem ser características importantes de URLs de phishing.
-- A padronização das variáveis foi realizada apenas para o modelo de Regressão Logística, que é sensível à escala.
-- Não foi realizada redução de dimensionalidade, pois o número de variáveis (49 após remover 'id') não é considerado alto.
+## 🗂️ Estrutura do projeto
 
-## 4. Seleção e Modelagem com Algoritmos de Mineração de Dados
+```text
+phishing-machine-learning-cyber/
+├── api/
+│   ├── main.py                 # endpoints FastAPI
+│   ├── predictor.py            # carga do modelo e predição
+│   ├── schemas.py              # schema da requisição
+│   └── requirements.txt        # dependências
+├── data/
+│   ├── dataset.csv             # base principal
+│   ├── dictionary.md           # dicionário de dados
+│   ├── output/                 # artefatos da modelagem completa
+│   └── output_API/             # artefatos da modelagem URL-only e API
+├── modules/
+│   └── feature_extractor.py    # extração de features estruturais da URL
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_preprocessamento.ipynb
+│   ├── 03_modelagem.ipynb
+│   ├── 04_avaliacao.ipynb
+│   ├── 06_avaliacaoURL.ipynb
+│   ├── 07_comparacao_final.ipynb
+│   └── 08_testingURL.ipynb
+└── Dockerfile
+```
 
-O problema foi definido como uma classificação binária. Foram selecionados os seguintes algoritmos:
+---
 
-- Regressão Logística (Logistic Regression)
-- Árvore de Decisão (Decision Tree)
-- Random Forest (RandomForest)
+## 🧪 Fluxo analítico (notebooks)
 
-A configuração dos parâmetros para cada modelo foi realizada utilizando `GridSearchCV` com validação cruzada (cv=5) e métrica de avaliação F1-Score.
+### 1) `01_eda.ipynb` — Análise Exploratória
+- Carregamento da base e inspeção estrutural.
+- Verificação de qualidade de dados (ausentes, distribuição, estatísticas).
+- Avaliação da variável alvo (`CLASS_LABEL`) e equilíbrio entre classes.
 
-Os modelos foram treinados e avaliados, e a importância das variáveis foi analisada para Random Forest, Decision Tree, e Regressão Logística.
+### 2) `02_preprocessamento.ipynb` — Pré-processamento
+- Remoção de colunas não úteis (ex.: identificador).
+- Separação `X`/`y` e split treino-teste.
+- Escalonamento para modelos sensíveis à escala (ex.: regressão logística).
+- Persistência dos conjuntos processados em `data/output/...`.
 
-## 5. Interpretação e Avaliação dos Resultados
+### 3) `03_modelagem.ipynb` — Treino
+- Treino de:
+  - Regressão Logística,
+  - Decision Tree,
+  - Random Forest.
+- Ajuste de hiperparâmetros com `GridSearchCV`.
 
-Os modelos foram avaliados e comparados utilizando métricas como Acurácia, Precisão, Recall e F1-Score. A Random Forest apresentou o melhor desempenho geral.
+### 4) `04_avaliacao.ipynb` — Avaliação (modelo completo)
+- Comparação por métricas: Accuracy, Precision, Recall, F1, ROC-AUC.
+- Matrizes de confusão e interpretação de erros (FP/FN).
 
-Uma análise da matriz de confusão foi realizada para o melhor modelo (Random Forest com as Top 15 features) para entender os erros de classificação (Falsos Positivos e Falsos Negativos). A distribuição balanceada das classes e a análise das métricas por classe indicaram que o modelo não apresenta viés significativo em relação a uma das classes.
+### 5) `06_avaliacaoURL.ipynb` — Avaliação (URL-only)
+- Repetição da avaliação com subconjunto de variáveis extraídas diretamente da URL.
+- Geração de artefatos em `data/output_API/...` para consumo da API.
 
-As variáveis consideradas mais importantes pelos modelos foram interpretadas, fornecendo insights sobre as características que mais contribuem para a detecção de phishing.
+### 6) `07_comparacao_final.ipynb` — Síntese
+- Comparação final entre:
+  - modelos com conjunto amplo de variáveis,
+  - modelos URL-only.
+- Discussão de trade-off entre desempenho e custo computacional.
 
-## 6. Implantação e Monitoramento (Planejamento)
+### 7) `08_testingURL.ipynb`
+- Testes finais da estratégia URL-only e validações de uso prático.
 
-O planejamento de implantação para este modelo de detecção de phishing inclui as seguintes possibilidades:
+---
 
-- **API:** Empacotar o modelo como um serviço web para integração com outras aplicações.
-- **Dashboard ou Relatório Interativo:** Apresentar os resultados da classificação e insights em um formato visual e compreensível.
-- **Extensão de Navegador:** Desenvolver uma extensão para alertar usuários em tempo real.
-- **Integração em Sistemas de Segurança:** Incorporar o modelo em firewalls, proxies, etc.
+## 🤖 Modelos e artefatos
 
-Mesmo sem implantação direta, os resultados podem ser utilizados para educação, desenvolvimento de regras heurísticas, análise forense e aprimoramento de ferramentas existentes.
+Modelos serializados (pickle) incluem, entre outros:
+- `data/output/models/logistic_regression.pkl`
+- `data/output/models/decision_tree.pkl`
+- `data/output/models/random_forest.pkl`
+- `data/output_API/models/log_model_url.pkl`
+- `data/output_API/models/tree_model_url.pkl`
+- `data/output_API/models/rf_model_url.pkl` ✅ (utilizado na API)
+
+Também há artefatos auxiliares como scaler e bases de treino/teste salvas para reprodutibilidade.
+
+---
+
+## 🌐 API de predição
+
+A API foi implementada em FastAPI.
+
+### Endpoint de status
+- `GET /`
+- Retorno: mensagem indicando API ativa.
+
+### Endpoint de inferência
+- `POST /predict`
+- Body (JSON):
+
+```json
+{
+  "url": "https://exemplo.com/login"
+}
+```
+
+### Resposta esperada
+- URL avaliada
+- classificação (`Legítima`, `Suspeita`, `Phishing`)
+- probabilidades de classe
+- nível de risco (`Baixo Risco`, `Risco Moderado`, `Alto Risco`)
+
+A classificação de risco é baseada na probabilidade prevista de phishing:
+- `< 0.30` → Baixo Risco
+- `0.30 a < 0.60` → Risco Moderado
+- `>= 0.60` → Alto Risco
+
+---
+
+## 🔎 Features de URL usadas pela API
+
+A inferência da API utiliza extração de atributos estruturais implementada em `modules/feature_extractor.py`.
+
+Principais grupos de variáveis:
+- Estrutura da URL (pontos, subdomínios, tamanho, níveis de path etc.)
+- Sinais de ofuscação/suspeita (`@`, `%`, `#`, números, duplo slash, etc.)
+- Uso de HTTPS
+- Uso de IP no lugar de domínio
+- Presença do domínio em partes incomuns da URL
+
+As features finais usadas em produção estão listadas em `api/predictor.py` (lista `url_features`).
+
+---
+
+## 🚀 Como executar localmente
+
+### Opção A — Python + Uvicorn
+
+#### 1. Instalar dependências
+```bash
+pip install -r api/requirements.txt
+```
+
+#### 2. Definir variáveis de ambiente
+```bash
+export PYTHONPATH=.
+export MODEL_PATH=data/output_API/models/rf_model_url.pkl
+```
+
+#### 3. Subir API
+```bash
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 4. Acessar
+- Docs interativas: `http://localhost:8000/docs`
+- Healthcheck: `http://localhost:8000/`
+
+---
+
+### Opção B — Docker
+
+```bash
+docker build -t phishing-api .
+docker run --rm -p 8000:8000 phishing-api
+```
+
+O `Dockerfile` já configura `MODEL_PATH` para:
+`/app/data/output_API/models/rf_model_url.pkl`
+
+---
+
+## 📊 Dataset e dicionário
+
+- Base principal: `data/dataset.csv`
+- Dicionário de variáveis: `data/dictionary.md`
+
+O dataset contém atributos léxicos e estruturais de URLs/páginas para classificação binária (`CLASS_LABEL`):
+- `0` = legítima
+- `1` = phishing
+
+---
+
+## ⚠️ Limitações e próximos passos
+
+### Limitações
+- Dependência de um dataset específico.
+- Possível drift temporal de padrões de phishing.
+- Abordagem majoritariamente estática (características da URL).
+
+### Próximos passos sugeridos
+- Validação externa com novas bases.
+- Rotina de monitoramento e re-treino periódico.
+- Feature store/versionamento formal de modelos.
+- Deploy com observabilidade (logs, métricas, alertas).
+- Criação de extensão de navegador ou integração com gateway de segurança.
+
+---
+
+## 👥 Créditos
+
+Projeto acadêmico/prático de aplicação de Machine Learning em cibersegurança, com foco em detecção de phishing e disponibilização de inferência via API.
