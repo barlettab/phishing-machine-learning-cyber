@@ -28,6 +28,18 @@ function typeText(text, speed = 20) {
   tick();
 }
 
+function createBar(value, max = 100, size = 20) {
+  const percent = Math.round((value / max) * 100);
+  const filled = Math.round((percent / 100) * size);
+  const empty = size - filled;
+
+  const bar =
+    "█".repeat(filled) +
+    "░".repeat(empty);
+
+  return `${bar} ${percent.toFixed(2)}%`;
+}
+
 function setRiskTheme(level) {
   terminal.classList.remove("warning", "danger");
 
@@ -65,46 +77,68 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function print(text, highlight = false) {
+function print(text, type = "normal") {
   const line = document.createElement("div");
-
-  if (highlight) {
-    if (currentRisk === "warning") {
-      line.classList.add("bold-warning");
-    } else if (currentRisk === "danger") {
-      line.classList.add("bold-danger");
-    } else {
-      line.classList.add("bold-safe");
-    }
-  }
 
   line.innerHTML = text;
 
-  output.appendChild(line);
+  if (type === "safe") {
+    line.classList.add("bold-safe");
+  } else if (type === "warning") {
+    line.classList.add("bold-warning");
+  } else if (type === "danger") {
+    line.classList.add("bold-danger");
+  }
 
-  // espaçamento visual
   line.style.marginBottom = "6px";
 
+  output.appendChild(line);
   output.scrollTop = output.scrollHeight;
 }
 
+async function animateBar(label, value, type = "safe") {
+  const steps = 20;
+  const target = parseFloat(value);
+
+  for (let i = 0; i <= steps; i++) {
+    const current = (target / steps) * i;
+    const bar = createBar(current);
+
+    print(`${label}: ${bar}`, type);
+
+    await delay(40);
+    output.removeChild(output.lastChild);
+  }
+
+  print(`${label}: ${createBar(target)}`, type);
+}
+
 async function renderResult(data) {
+  terminal.classList.remove("warning", "danger");
   clearOutput();
 
   const prediction = (data.prediction || "").toLowerCase();
-  const riskLevel = (data.risk_level || "").toLowerCase();
 
-  if (prediction.includes("suspeita")) {
-    setRiskTheme("suspeita");
-  } else if (
-    prediction.includes("phishing") ||
-    riskLevel.includes("risco")
-  ) {
+  const isLegit =
+    prediction.includes("legítima") ||
+    prediction.includes("legitima") ||
+    prediction.includes("safe");
+
+  const isPhishing =
+    prediction.includes("phishing");
+
+  const isSuspicious =
+    prediction.includes("suspeita");
+
+  if (isPhishing) {
     setRiskTheme("phishing");
+  } else if (isSuspicious) {
+    setRiskTheme("suspeita");
+  } else if (isLegit) {
+    setRiskTheme("baixo");
   } else {
     setRiskTheme("baixo");
   }
-
   const lines = [
     "[ANALYZING TARGET...]",
     "",
@@ -118,13 +152,12 @@ async function renderResult(data) {
     await delay(400);
   }
 
-  // 🔥 agora sim: destaques separados (CORRETO)
-  print(`LEGITIMATE PROB: ${data.legitimate_probability}`, true);
-  print(`PHISHING PROB: ${data.phishing_probability}`, true);
+  await animateBar("LEGITIMATE PROB", data.legitimate_probability, "safe");
+  await animateBar("PHISHING PROB", data.phishing_probability, "safe");
 
   await delay(300);
 
-  if (prediction.includes("suspeita")) {
+  if (isPhishing || isSuspicious) {
     typeText("⚠ THREAT DETECTED: PHISHING NODE");
     await delay(300);
     typeText("INITIATING COUNTER-TRACE...");
