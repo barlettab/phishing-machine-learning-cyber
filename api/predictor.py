@@ -71,7 +71,7 @@ def predict_url(url):
         risk = "Baixo Risco"
         prediction = "Legítima"
 
-    elif phishing_prob < 0.60:
+    elif phishing_prob < 0.50:
 
         risk = "Risco Moderado"
         prediction = "Suspeita"

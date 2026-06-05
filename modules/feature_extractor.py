@@ -134,5 +134,5 @@ def extract_features(url):
     features['DoubleSlashInPath'] = int(
         '//' in path
     )
-
+    
     return features
