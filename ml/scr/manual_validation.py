@@ -14,15 +14,15 @@ from pathlib import Path
 MODEL_PATH = (
     BASE_DIR /
     "models" /
-    "scenario_3b2" /
-    "rf_scenario_3b2.pkl"
+    "scenario_3c1" /
+    "rf_scenario_3c1.pkl"
 )
 
 FEATURES_PATH = (
     BASE_DIR /
     "artifacts" /
-    "scenario_3b2" /
-    "feature_columns_v2.pkl"
+    "scenario_3c1" /
+    "feature_columns.pkl"
 )
 
 PHISH_PATH = (
@@ -127,21 +127,42 @@ print(
     .value_counts()
 )
 
+from sklearn.metrics import (
+    confusion_matrix,
+    classification_report
+)
+
+print("\nClassification Report")
+print(
+    classification_report(
+        real_labels,
+        predictions
+    )
+)
+
+print("\nConfusion Matrix")
+print(
+    confusion_matrix(
+        real_labels,
+        predictions
+    )
+)
+
 probabilities = model.predict_proba(X)
 
 
-results = pd.DataFrame({
+results = df_features.copy()
 
-    "url": urls,
+results["url"] = urls
 
-    "real_label": real_labels,
+results["real_label"] = real_labels
 
-    "predicted_label": predictions,
+results["predicted_label"] = predictions
 
-    "prob_benign": probabilities[:, 0],
+results["prob_benign"] = probabilities[:, 0]
 
-    "prob_phishing": probabilities[:, 1]
-})
+results["prob_phishing"] = probabilities[:, 1]
+
 
 results["correct"] = (
     results["real_label"]
@@ -149,6 +170,38 @@ results["correct"] = (
     results["predicted_label"]
 )
 
+# False Positives
+fp = results[
+    (results["real_label"] == 0)
+    &
+    (results["predicted_label"] == 1)
+]
+
+# False Negatives
+fn = results[
+    (results["real_label"] == 1)
+    &
+    (results["predicted_label"] == 0)
+]
+
+fp.to_csv(
+    BASE_DIR /
+    "datasets" /
+    "validation" /
+    "false_positives.csv",
+    index=False
+)
+
+fn.to_csv(
+    BASE_DIR /
+    "datasets" /
+    "validation" /
+    "false_negatives.csv",
+    index=False
+)
+
+print(f"False Positives: {len(fp)}")
+print(f"False Negatives: {len(fn)}")
 
 accuracy = (
     results["correct"]
